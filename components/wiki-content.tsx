@@ -89,7 +89,11 @@ export function WikiContent({ content }: { content: string }) {
         .use(remarkMath)
         .use(remarkRehype)
         .use(rehypeSanitize)
-        .use(rehypeKatex)
+        .use(rehypeKatex, {
+          macros: {
+            "\\Tuple": "\\left\\langle #1 \\right\\rangle", // 添加自定义命令
+          },
+        })
         .use(rehypeStringify)
 
       const result = await processor.process(content)
