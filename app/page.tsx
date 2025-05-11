@@ -17,7 +17,7 @@ export default async function HomePage() {
         {pages.map((page) => (
           <Link
             key={page.slug}
-            href={`/wiki/${page.slug}`}
+            href={`/${page.slug}`}
             className="block p-6 bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
           >
             <h2 className="text-xl font-semibold mb-2">{page.title}</h2>
