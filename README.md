@@ -56,3 +56,36 @@ The `content` directory is a critical part of the project, as it stores Markdown
 
 5. **`components/wiki-content.tsx`**:
    - The `WikiContent` component renders Markdown content loaded from the `content` directory.
+
+### Displaying Update Date with Locale Support
+
+The project supports displaying the `update` field from the YAML front matter of Markdown files in a human-readable date format (e.g., `13 Sep 2024`). The date format can be customized based on locale preferences.
+
+#### Implementation Details
+
+1. **`lib/wiki-utils.ts`**:
+   - The `WikiPage` interface includes an optional `update` field.
+   - The `getPageBySlug` function parses and returns the `update` field from the YAML front matter.
+
+2. **`app/[slug]/page.tsx`**:
+   - The `update` field is formatted using the `date-fns` library.
+   - A `locale` variable is introduced to allow switching between different date formats (e.g., British `enGB` or American `enUS`).
+
+#### Example
+
+For a Markdown file with the following front matter:
+
+```yaml
+---
+title: Example Page
+update: 2025-05-11
+---
+```
+
+The rendered page will display:
+
+```text
+Last updated: 11 May 2025
+```
+
+To change the locale, modify the `locale` variable in `app/[slug]/page.tsx`. For example, switching to `enUS` will format the date as `May 11, 2025`.

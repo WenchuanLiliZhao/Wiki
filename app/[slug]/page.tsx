@@ -1,6 +1,10 @@
 import { getPageBySlug, getAllPages } from "@/lib/wiki-utils";
 import { notFound } from "next/navigation";
 import { WikiContent } from "@/components/wiki-content";
+import { format } from "date-fns";
+import { enGB } from "date-fns/locale";
+
+const locale = enGB; // Change this to enUS or other locales to switch formats
 
 export async function generateStaticParams() {
   const pages = await getAllPages();
@@ -31,10 +35,14 @@ export default async function WikiPage({ params }: { params: { slug: string } })
     notFound();
   }
 
+  const formattedDate = page.update
+    ? format(new Date(page.update), "d MMM yyyy", { locale }) // Format date with locale
+    : null;
+
   return (
     <div className="container mx-auto py-8 px-4">
       <article className="prose prose-lg max-w-none">
-        {/* <h1>{page.title}</h1> */}
+        {formattedDate && <p className="text-sm text-gray-500">Last updated: {formattedDate}</p>}
         <WikiContent content={page.content} />
       </article>
     </div>

@@ -1,5 +1,6 @@
 ---
 title: Distance Formula
+update: 2025-03-14
 ---
 
 # Distance Formula

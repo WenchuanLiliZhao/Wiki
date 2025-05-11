@@ -9,6 +9,7 @@ export interface WikiPage {
   title: string
   content: string
   excerpt: string
+  update?: string // Add update field
 }
 
 export async function getAllPages(): Promise<WikiPage[]> {
@@ -52,6 +53,7 @@ export async function getPageBySlug(slug: string): Promise<WikiPage | null> {
       title: data.title || slug,
       content,
       excerpt: excerpt + (excerpt.length >= 150 ? "..." : ""),
+      update: data.update, // Include update field
     }
   } catch (error) {
     console.error(`Error reading page ${slug}:`, error)
