@@ -1,6 +1,5 @@
 ---
 title: Pythagorean Theorem
-update: 2025-04-01
 ---
 
 # Pythagorean Theorem

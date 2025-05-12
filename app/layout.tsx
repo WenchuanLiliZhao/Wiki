@@ -1,8 +1,6 @@
 import type React from "react"
-import "@/app/globals.css"
 import { Inter } from "next/font/google"
 import { Sidebar } from "@/components/sidebar"
-import "katex/dist/katex.min.css";
 
 const inter = Inter({ subsets: ["latin"] })
 

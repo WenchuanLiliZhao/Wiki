@@ -1,16 +1,12 @@
 ---
 title: Distance Formula
-update: 2025-03-14
 ---
 
 # Distance Formula
 
-The distance formula is a direct application of the [[pythagorean-theorem|Pythagorean Theorem]].
+The distance formula is a direct application of the [[Pythagorean Theorem]].
 
-
-![Description of the image](https://i.pinimg.com/736x/70/56/09/705609443c4518f3207c944317d410dc.jpg)
-
-## Formula $\Tuple{a,b,c}$
+## Formula
 
 The distance between two points $(x_1, y_1)$ and $(x_2, y_2)$ in a Cartesian coordinate system is given by:
 
