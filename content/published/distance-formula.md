@@ -5,7 +5,7 @@ update: 2025-03-14
 
 # Distance Formula
 
-The distance formula is a direct application of the [[Pythagorean Theorem]].
+The distance formula is a direct application of the [[pythagorean-theorem|Pythagorean Theorem]].
 
 
 ![Description of the image](https://i.pinimg.com/736x/70/56/09/705609443c4518f3207c944317d410dc.jpg)
