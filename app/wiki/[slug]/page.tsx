@@ -34,7 +34,6 @@ export default async function WikiPage({ params }: { params: { slug: string } })
   return (
     <div className="container mx-auto py-8 px-4">
       <article className="prose prose-lg max-w-none">
-        <h1>{page.title}</h1>
         <WikiContent content={page.content} />
       </article>
     </div>

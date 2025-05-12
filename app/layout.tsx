@@ -1,8 +1,6 @@
+import "./styles/__styles.scss"
 import type React from "react"
-import { Inter } from "next/font/google"
 import { Sidebar } from "@/components/sidebar"
-
-const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
   title: "Math Wiki",
@@ -17,7 +15,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body>
         <div className="flex min-h-screen">
           <Sidebar />
           <main className="flex-1 bg-gray-50">{children}</main>
