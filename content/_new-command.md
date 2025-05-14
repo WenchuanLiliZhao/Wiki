@@ -8,6 +8,7 @@ hide: true
 | ---------------------------------------------- | --------------- |
 | $\newcommand{\Tuple}[1]{\left< x,y,z \right>}$ | $\Tuple{x,y,z}$ |
 | $\newcommand{\Class}[1]{\left\{ #1 \right\}}$  | $\Class{x,y,z}$ |
+| $\newcommand{\Numeral}[1]{\boldsymbol{#1}}$    | $\Numeral{x}$   |
 
 The above `newcommands` would be translated into macros settings in `wiki-content.tsx`: 
 

@@ -96,6 +96,7 @@ export function WikiContent({ content }: { content: string }) {
           macros: {
             "\\Tuple": "{\\langle #1 \\rangle}",
             "\\Class": "{\\left\\{ #1 \\right\\}}",
+            "\\Numeral": "{\\boldsymbol{#1}}",
           },
           trust: true,
         })
