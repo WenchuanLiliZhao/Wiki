@@ -2,7 +2,7 @@
 title: Distance Formula
 ---
 
-# Distance Formula $\Tuple{x,y,z}$
+$\Tuple{x,y,z}$
 
 The distance formula is a direct application of the [[Pythagorean Theorem]].
 

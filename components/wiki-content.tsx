@@ -95,6 +95,7 @@ export function WikiContent({ content }: { content: string }) {
         .use(rehypeKatex, {
           macros: {
             "\\Tuple": "{\\langle #1 \\rangle}",
+            "\\Class": "{\\left\\{ #1 \\right\\}}",
           },
           trust: true,
         })
