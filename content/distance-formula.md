@@ -2,7 +2,7 @@
 title: Distance Formula
 ---
 
-# Distance Formula
+# Distance Formula $\Tuple{x,y,z}$
 
 The distance formula is a direct application of the [[Pythagorean Theorem]].
 
@@ -13,6 +13,12 @@ The distance between two points $(x_1, y_1)$ and $(x_2, y_2)$ in a Cartesian coo
 $$d = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}$$
 
 ## Derivation
+
+```typescript
+export interface icon {
+  title: string;
+}
+```
 
 To derive this formula, we create a right triangle where:
 - The horizontal leg has length $|x_2 - x_1|$

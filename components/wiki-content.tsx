@@ -8,7 +8,9 @@ import remarkRehype from "remark-rehype"
 import rehypeKatex from "rehype-katex"
 import rehypeStringify from "rehype-stringify"
 import rehypeSanitize from "rehype-sanitize"
+import rehypeHighlight from "rehype-highlight"
 import "katex/dist/katex.min.css"
+import "highlight.js/styles/github.css"
 
 // Custom plugin to handle wiki links [[Page Name]]
 function remarkWikiLinks() {
@@ -89,7 +91,13 @@ export function WikiContent({ content }: { content: string }) {
         .use(remarkMath)
         .use(remarkRehype)
         .use(rehypeSanitize)
-        .use(rehypeKatex)
+        .use(rehypeKatex, {
+          macros: {
+            "\\Tuple": "{\\langle #1 \\rangle}",
+          },
+          trust: true,
+        })
+        .use(rehypeHighlight)
         .use(rehypeStringify)
 
       const result = await processor.process(content)
