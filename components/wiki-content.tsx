@@ -33,7 +33,8 @@ function remarkWikiLinks() {
 
           // The wiki link
           const linkText = match[1]
-          const slug = linkText.toLowerCase().replace(/\s+/g, "-")
+          // Use the same slugify logic as in wiki-utils
+          const slug = linkText.trim().toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
           segments.push({
             type: "wikiLink",
             data: {
