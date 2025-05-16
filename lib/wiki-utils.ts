@@ -1,6 +1,7 @@
 import fs from "fs/promises"
 import path from "path"
 import matter from "gray-matter"
+import { formatDisplayDate } from "@/lib/date-utils"
 
 const contentDirectory = path.join(process.cwd(), "content")
 
@@ -8,8 +9,17 @@ export interface WikiPage {
   slug: string
   title: string
   content: string
-  excerpt: string
   summary: string
+  /**
+   * The last updated date of the page in display format (e.g., "Apr 24, 2025").
+   * Populated from the `update` field in the Markdown front-matter.
+   * Will be an empty string if the field is missing or cannot be parsed.
+   */
+  update: string
+  /**
+   * Optional cover image URL specified in front-matter as `cover`.
+   */
+  cover: string
 }
 
 export async function getAllPages(): Promise<WikiPage[]> {
@@ -40,14 +50,6 @@ export async function getPageBySlug(slug: string): Promise<WikiPage | null> {
 
     const { content, data } = matter(fileContents)
 
-    // Create an excerpt from the content
-    const excerpt = content
-      .replace(/\[\[(.*?)\]\]/g, "$1") // Remove wiki link syntax
-      .replace(/\$\$(.*?)\$\$/g, "") // Remove math blocks
-      .replace(/\$(.*?)\$/g, "") // Remove inline math
-      .slice(0, 150)
-      .trim()
-
     // Determine title: use first Heading 1 ("# ") in markdown body; if absent, fallback to file name (slug)
     const headingMatch = content.match(/^#\s+(.+)$/m)
 
@@ -67,12 +69,16 @@ export async function getPageBySlug(slug: string): Promise<WikiPage | null> {
       summary = firstParagraph.replace(/\[\[(.*?)\]\]/g, "$1")
     }
 
+    // Format `update` field from front-matter into a human-readable string.
+    const update = formatDisplayDate(data.update)
+
     return {
       slug,
       title: headingMatch ? headingMatch[1].trim() : slug,
       content,
-      excerpt: excerpt + (excerpt.length >= 150 ? "..." : ""),
       summary,
+      update,
+      cover: typeof data.cover === "string" ? data.cover.trim() : "",
     }
   } catch (error) {
     console.error(`Error reading page ${slug}:`, error)

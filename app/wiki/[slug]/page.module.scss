@@ -1,0 +1,15 @@
+.container {
+  .article {
+    .content {
+      h1:first-child {
+        display: none;
+      }
+    }
+  }
+}
+
+.content {
+  :global(h2) {
+    color: red;
+  }
+}

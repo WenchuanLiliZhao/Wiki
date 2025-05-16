@@ -3,12 +3,13 @@ hidden: true
 ---
 # TeX Commands Used in This Website
 
+sss
+
 ## Set theory
 
 | Command                                                           | Use case                                                                                                                                     |
 | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | $\newcommand{\Tuple}[1]{\left\langle #1 \right\rangle} \Tuple{x}$ | If $x_1, \ldots, x_n$ are elements, we write $\Tuple{x_1, \ldots, x_n}$ for the $n$-tuples consisting of $x_1, \ldots, x_n$ (in this order). |
-
 
 ## Metamathematics
 

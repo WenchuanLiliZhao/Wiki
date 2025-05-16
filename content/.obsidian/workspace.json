@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "_new-commands.md",
+                "file": "distance-formula.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "_new-commands"
+              "title": "distance-formula"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "_new-commands.md",
+                "file": "distance-formula.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for _new-commands"
+              "title": "Backlinks for distance-formula"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "_new-commands.md",
+                "file": "distance-formula.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from _new-commands"
+              "title": "Outgoing links from distance-formula"
             }
           },
           {
@@ -142,13 +142,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "_new-commands.md",
+                "file": "distance-formula.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of _new-commands"
+              "title": "Outline of distance-formula"
             }
           }
         ]
@@ -170,9 +170,10 @@
   },
   "active": "4eee16291a82317f",
   "lastOpenFiles": [
-    "vector-calculations.md",
-    "pythagorean-theorem.md",
+    "2025-05-16.md",
     "distance-formula.md",
-    "_new-commands.md"
+    "_new-commands.md",
+    "vector-calculations.md",
+    "pythagorean-theorem.md"
   ]
 }

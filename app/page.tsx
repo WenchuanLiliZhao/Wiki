@@ -17,6 +17,16 @@ export default async function HomePage() {
           >
             <h2 className="text-xl font-semibold mb-2">{page.title}</h2>
             <p className="text-gray-600 line-clamp-2">{page.summary}</p>
+            {page.update && <p className="text-gray-600">Last updated: {page.update}</p>}
+            {page.cover && (
+              <div className="mt-2">
+                <img
+                  src={page.cover}
+                  alt={page.title}
+                  className="w-full h-40 object-cover rounded-md"
+                />
+              </div>
+            )}
           </Link>
         ))}
       </div>

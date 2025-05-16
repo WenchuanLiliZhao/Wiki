@@ -1,5 +1,6 @@
 ---
 title: Vector Calculations
+update: 2019-12-01
 ---
 
 # Vector Calculations

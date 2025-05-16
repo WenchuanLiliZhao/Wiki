@@ -1,5 +1,7 @@
 ---
 title: Distance Formula
+update: 2025-05-16
+cover: https://i.pinimg.com/736x/7f/e5/49/7fe5493023a36f2fa7bf02cef5256c73.jpg
 ---
 
 # Distance Formula $\Tuple{x,y,z}$
