@@ -33,8 +33,7 @@ function remarkWikiLinks() {
 
           // The wiki link
           const linkText = match[1]
-          // Use the same slugify logic as in wiki-utils
-          const slug = linkText.trim().toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
+          const slug = linkText.toLowerCase().replace(/\s+/g, "-")
           segments.push({
             type: "wikiLink",
             data: {
@@ -95,8 +94,6 @@ export function WikiContent({ content }: { content: string }) {
         .use(rehypeKatex, {
           macros: {
             "\\Tuple": "{\\langle #1 \\rangle}",
-            "\\Class": "{\\left\\{ #1 \\right\\}}",
-            "\\Numeral": "{\\boldsymbol{#1}}",
           },
           trust: true,
         })
