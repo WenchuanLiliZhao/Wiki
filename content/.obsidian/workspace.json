@@ -13,20 +13,6 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "distance-formula.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "distance-formula"
-            }
-          },
-          {
-            "id": "8ab9cffc2e7062a5",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
                 "file": "_new-commands.md",
                 "mode": "source",
                 "source": false
@@ -35,8 +21,7 @@
               "title": "_new-commands"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -183,11 +168,11 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "8ab9cffc2e7062a5",
+  "active": "4eee16291a82317f",
   "lastOpenFiles": [
-    "distance-formula.md",
-    "_new-commands.md",
+    "vector-calculations.md",
     "pythagorean-theorem.md",
-    "vector-calculations.md"
+    "distance-formula.md",
+    "_new-commands.md"
   ]
 }

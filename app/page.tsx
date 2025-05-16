@@ -16,7 +16,7 @@ export default async function HomePage() {
             className="block p-6 bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
           >
             <h2 className="text-xl font-semibold mb-2">{page.title}</h2>
-            <p className="text-gray-600 line-clamp-2">{page.excerpt}</p>
+            <p className="text-gray-600 line-clamp-2">{page.summary}</p>
           </Link>
         ))}
       </div>
