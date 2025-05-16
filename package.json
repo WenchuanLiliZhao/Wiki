@@ -61,6 +61,7 @@
     "rehype-katex": "latest",
     "rehype-sanitize": "latest",
     "rehype-stringify": "latest",
+    "remark-gfm": "^4.0.1",
     "remark-math": "latest",
     "remark-parse": "latest",
     "remark-rehype": "latest",

@@ -9,6 +9,7 @@ import rehypeKatex from "rehype-katex"
 import rehypeStringify from "rehype-stringify"
 import rehypeSanitize from "rehype-sanitize"
 import rehypeHighlight from "rehype-highlight"
+import remarkGfm from "remark-gfm"
 import "katex/dist/katex.min.css"
 import "highlight.js/styles/github.css"
 
@@ -88,12 +89,16 @@ export function WikiContent({ content }: { content: string }) {
       const processor = unified()
         .use(remarkParse)
         .use(remarkWikiLinks)
+        .use(remarkGfm)
         .use(remarkMath)
         .use(remarkRehype)
         .use(rehypeSanitize)
         .use(rehypeKatex, {
           macros: {
-            "\\Tuple": "{\\langle #1 \\rangle}",
+            "\\Tuple": "{\\left\\langle #1 \\right\\rangle}",
+            "\\String": "{\\text{`} #1 \\text{'}}",
+            "\\Numeral": "{\\tilde{#1}}",
+            "\\StringAdd": "{^{\\frown}}",
           },
           trust: true,
         })
