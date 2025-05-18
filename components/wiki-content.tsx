@@ -13,7 +13,7 @@ import remarkGfm from "remark-gfm"
 import "katex/dist/katex.min.css"
 import "highlight.js/styles/github.css"
 
-// Custom plugin to handle wiki links [[Page Name]]
+// Custom plugin to handle wiki links [[Page Name]] or [[Folder/Page Name]]
 function remarkWikiLinks() {
   return (tree: any) => {
     const visit = (node: any) => {
@@ -34,7 +34,14 @@ function remarkWikiLinks() {
 
           // The wiki link
           const linkText = match[1]
-          const slug = linkText.toLowerCase().replace(/\s+/g, "-")
+          
+          // Handle paths in wiki links
+          // If it's a nested path like "Folder/Page", preserve the structure
+          // Otherwise, convert spaces to dashes for legacy formatting
+          const slug = linkText.includes("/") 
+            ? linkText.split("/").map(part => part.toLowerCase().replace(/\s+/g, "-")).join("/")
+            : linkText.toLowerCase().replace(/\s+/g, "-")
+            
           segments.push({
             type: "wikiLink",
             data: {

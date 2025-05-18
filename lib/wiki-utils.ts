@@ -22,18 +22,48 @@ export interface WikiPage {
   cover: string
 }
 
+// Recursively scan directories to find all .md files
+async function scanDirectory(dir: string, basePath: string = ""): Promise<string[]> {
+  try {
+    const entries = await fs.readdir(dir, { withFileTypes: true });
+    
+    const filesPromises = entries.map(async (entry) => {
+      const resolvedPath = path.join(dir, entry.name);
+      const relativePath = basePath ? path.join(basePath, entry.name) : entry.name;
+      
+      try {
+        if (entry.isDirectory()) {
+          return scanDirectory(resolvedPath, relativePath);
+        } else if (entry.name.endsWith(".md")) {
+          return [relativePath];
+        }
+        return [];
+      } catch (error) {
+        console.error(`Error processing ${resolvedPath}:`, error);
+        return [];
+      }
+    });
+    
+    const filesArrays = await Promise.all(filesPromises);
+    return filesArrays.flat();
+  } catch (error) {
+    console.error(`Error scanning directory ${dir}:`, error);
+    return [];
+  }
+}
+
 export async function getAllPages(): Promise<WikiPage[]> {
   try {
-    const files = await fs.readdir(contentDirectory)
+    // Get all markdown files recursively
+    const files = await scanDirectory(contentDirectory);
 
     const pages = await Promise.all(
-      files
-        .filter((file) => file.endsWith(".md"))
-        .map(async (file) => {
-          const slug = file.replace(/\.md$/, "")
-          const page = await getPageBySlug(slug)
-          return page
-        }),
+      files.map(async (file) => {
+        // Convert file path to URL slug (remove .md and use path separators)
+        const slug = file.replace(/\.md$/, "")
+        const page = await getPageBySlug(slug)
+        return page
+      }),
     )
 
     return pages.filter(Boolean) as WikiPage[]
@@ -45,6 +75,7 @@ export async function getAllPages(): Promise<WikiPage[]> {
 
 export async function getPageBySlug(slug: string): Promise<WikiPage | null> {
   try {
+    // Add .md extension to the slug to get the file path
     const filePath = path.join(contentDirectory, `${slug}.md`)
     const fileContents = await fs.readFile(filePath, "utf8")
 
@@ -52,6 +83,9 @@ export async function getPageBySlug(slug: string): Promise<WikiPage | null> {
 
     // Determine title: use first Heading 1 ("# ") in markdown body; if absent, fallback to file name (slug)
     const headingMatch = content.match(/^#\s+(.+)$/m)
+    
+    // Get the basename of the slug for the default title
+    const baseName = path.basename(slug)
 
     // Get summary from frontmatter or first paragraph
     let summary = data.summary
@@ -74,7 +108,7 @@ export async function getPageBySlug(slug: string): Promise<WikiPage | null> {
 
     return {
       slug,
-      title: headingMatch ? headingMatch[1].trim() : slug,
+      title: headingMatch ? headingMatch[1].trim() : baseName,
       content,
       summary,
       update,

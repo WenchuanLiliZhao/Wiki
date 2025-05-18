@@ -1,23 +1,26 @@
 import { getPageBySlug, getAllPages } from "@/lib/wiki-utils";
 import { notFound } from "next/navigation";
 import { WikiContent } from "@/components/wiki-content";
+import path from "path";
 import styles from "./page.module.scss";
 
 export async function generateStaticParams() {
   const pages = await getAllPages();
 
   return pages.map((page) => ({
-    slug: page.slug,
+    // Split the slug into segments for the catch-all route
+    slug: page.slug.split(path.sep),
   }));
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug?: string[] };
 }) {
-  const { slug } = await params;
-  const page = await getPageBySlug(slug);
+  // Join the slug segments to create the full slug path
+  const slugPath = params.slug ? params.slug.join("/") : "";
+  const page = await getPageBySlug(slugPath);
 
   if (!page) {
     return {
@@ -33,10 +36,11 @@ export async function generateMetadata({
 export default async function WikiPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug?: string[] };
 }) {
-  const { slug } = await params;
-  const page = await getPageBySlug(slug);
+  // Join the slug segments to create the full slug path
+  const slugPath = params.slug ? params.slug.join("/") : "";
+  const page = await getPageBySlug(slugPath);
 
   if (!page) {
     notFound();
@@ -72,4 +76,4 @@ export default async function WikiPage({
       </article>
     </div>
   );
-}
+} 

@@ -11,17 +11,14 @@
             "id": "4eee16291a82317f",
             "type": "leaf",
             "state": {
-              "type": "canvas",
+              "type": "markdown",
               "state": {
-                "file": "Untitled.canvas",
-                "viewState": {
-                  "x": 0,
-                  "y": 0,
-                  "zoom": 0
-                }
+                "file": "pythagorean-theorem.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-layout-dashboard",
-              "title": "Untitled"
+              "icon": "lucide-file",
+              "title": "pythagorean-theorem"
             }
           }
         ]
@@ -171,13 +168,13 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "29f2af8fabd26049",
+  "active": "4eee16291a82317f",
   "lastOpenFiles": [
+    "Untitled.canvas",
     "Untitled",
     "vector-calculations.md",
-    "Untitled.canvas",
     "pythagorean-theorem.md",
-    "distance-formula.md",
+    "Untitled/distance-formula.md",
     "2025-05-16.md",
     "_new-commands.md"
   ]
