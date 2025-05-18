@@ -1,6 +1,8 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import katex from "katex"
+import "katex/dist/katex.min.css"
 
 interface CanvasNode {
   id: string
@@ -54,6 +56,50 @@ function mapColor(color: string | undefined) {
   }
   
   return appliedColor
+}
+
+// Parse and render KaTeX formulas
+function renderMathInText(text: string) {
+  if (!text.includes("$")) return text;
+  
+  const parts = text.split(/(\$+)/).filter(Boolean);
+  const result: React.ReactNode[] = [];
+  let inMath = false;
+  
+  parts.forEach((part, index) => {
+    if (part.startsWith("$")) {
+      inMath = !inMath;
+      // Skip the dollar sign markers
+      return;
+    }
+    
+    if (inMath) {
+      // This is a math part, render with KaTeX
+      const html = katex.renderToString(part, {
+        throwOnError: false,
+        displayMode: false,
+        macros: {
+          "\\Tuple": "{\\left\\langle #1 \\right\\rangle}",
+          "\\String": "{\\text{`} #1 \\text{'}}",
+          "\\Numeral": "{\\tilde{#1}}",
+          "\\StringAdd": "{^{\\frown}}",
+        },
+      });
+      
+      result.push(
+        <span 
+          key={index} 
+          dangerouslySetInnerHTML={{ __html: html }} 
+          className="math"
+        />
+      );
+    } else {
+      // This is a text part
+      result.push(<span key={index}>{part}</span>);
+    }
+  });
+  
+  return result;
 }
 
 export function InteractiveCanvasViewer({ content }: { content: string }) {
@@ -263,9 +309,7 @@ export function InteractiveCanvasViewer({ content }: { content: string }) {
                   <text
                     x={node.x + 15}
                     y={node.y - 10}
-                    fontFamily="system-ui, sans-serif"
-                    fontSize="16"
-                    fontWeight="bold"
+                    className="group-label"
                     fill="#2c2d2c"
                   >
                     {node.label}
@@ -330,17 +374,13 @@ export function InteractiveCanvasViewer({ content }: { content: string }) {
                     height={node.height - 10}
                   >
                     <div 
+                      className="node-content"
                       style={{
-                        fontFamily: "system-ui, sans-serif",
-                        fontSize: "14px",
                         overflow: "hidden",
                         wordWrap: "break-word"
                       }}
                     >
-                      {node.text.split("$").map((part, i) => 
-                        i % 2 === 0 ? 
-                          part : <em key={i} style={{fontStyle: "italic"}}>{part}</em>
-                      )}
+                      {renderMathInText(node.text)}
                     </div>
                   </foreignObject>
                 )}
