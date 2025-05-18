@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import katex from "katex";
 import "katex/dist/katex.min.css";
+import { ZoomSlider } from "./ZoomSlider";
 
 interface CanvasNode {
   id: string;
@@ -117,6 +118,14 @@ export function InteractiveCanvasViewer({ content }: { content: string }) {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [curviness, setCurviness] = useState(1); // Control the curve intensity (0.1 to 1.0)
 
+  // Handle zoom change from slider
+  const handleZoomChange = (newScale: number) => {
+    setTransform(prev => ({
+      ...prev,
+      scale: newScale
+    }));
+  };
+
   // Parse canvas data
   useEffect(() => {
     try {
@@ -171,11 +180,6 @@ export function InteractiveCanvasViewer({ content }: { content: string }) {
       container.removeEventListener("wheel", wheelHandler);
     };
   }, []);
-
-  // Handle zoom - keep this as a reference but we won't use it directly
-  const handleWheel = (e: React.WheelEvent) => {
-    // We're now handling this with the non-passive event listener above
-  };
 
   // Handle drag
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -343,6 +347,8 @@ export function InteractiveCanvasViewer({ content }: { content: string }) {
             onChange={(e) => setCurviness(parseFloat(e.target.value))}
             style={{ width: "100px" }}
           />
+
+          <ZoomSlider scale={transform.scale} onZoomChange={handleZoomChange} />
         </div>
       </div>
 
