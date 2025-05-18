@@ -13,7 +13,7 @@ import remarkGfm from "remark-gfm"
 import "katex/dist/katex.min.css"
 import "highlight.js/styles/github.css"
 
-// Custom plugin to handle wiki links [[Page Name]] or [[Folder/Page Name]]
+// Custom plugin to handle wiki links [[Page Name]], [[Folder/Page Name]], or [[path|display-text]]
 function remarkWikiLinks() {
   return (tree: any) => {
     const visit = (node: any) => {
@@ -32,15 +32,29 @@ function remarkWikiLinks() {
             })
           }
 
-          // The wiki link
-          const linkText = match[1]
+          // The wiki link content
+          const linkContent = match[1]
+          
+          // Check if the link contains a pipe for custom display text
+          const pipeIndex = linkContent.indexOf('|')
+          
+          let linkPath, displayText
+          if (pipeIndex !== -1) {
+            // Format: [[path|display-text]]
+            linkPath = linkContent.substring(0, pipeIndex).trim()
+            displayText = linkContent.substring(pipeIndex + 1).trim()
+          } else {
+            // Format: [[path]] - use the same value for both
+            linkPath = linkContent
+            displayText = linkContent
+          }
           
           // Handle paths in wiki links
           // If it's a nested path like "Folder/Page", preserve the structure
           // Otherwise, convert spaces to dashes for legacy formatting
-          const slug = linkText.includes("/") 
-            ? linkText.split("/").map(part => part.toLowerCase().replace(/\s+/g, "-")).join("/")
-            : linkText.toLowerCase().replace(/\s+/g, "-")
+          const slug = linkPath.includes("/") 
+            ? linkPath.split("/").map(part => part.toLowerCase().replace(/\s+/g, "-")).join("/")
+            : linkPath.toLowerCase().replace(/\s+/g, "-")
             
           segments.push({
             type: "wikiLink",
@@ -51,7 +65,7 @@ function remarkWikiLinks() {
                 className: "wiki-link",
               },
             },
-            children: [{ type: "text", value: linkText }],
+            children: [{ type: "text", value: displayText }],
           })
 
           lastIndex = match.index + match[0].length
