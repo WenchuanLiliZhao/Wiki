@@ -1,6 +1,6 @@
 import { getCanvasBySlug, getAllCanvasFiles } from "@/lib/canvas-utils"
 import { CanvasViewer } from "@/components/canvas-viewer"
-import { InteractiveCanvasViewer } from "@/components/interactive-canvas-viewer"
+import { InteractiveCanvasViewer } from "@/components/svg/interactive-canvas-viewer"
 import notFound from "@/app/not-found"
 
 export async function generateStaticParams() {

@@ -5,7 +5,9 @@
 		{"id":"e41f63b359c9d475","type":"text","text":"$y$ aaa","x":-365,"y":-60,"width":250,"height":60},
 		{"id":"830c4649360d4ec4","type":"text","text":"$x$ ssss","x":-518,"y":-320,"width":250,"height":69},
 		{"id":"a77b05fa8f90038f","type":"text","text":"$x$ ssss","x":-860,"y":-285,"width":250,"height":69},
-		{"id":"ec4fdda159e87676","type":"text","text":"$x$ ssss","x":-610,"y":-541,"width":250,"height":50}
+		{"id":"ec4fdda159e87676","type":"text","text":"$x$ ssss [[pythagorean-theorem]] **sss**","x":-610,"y":-541,"width":250,"height":50},
+		{"id":"4b7871bc1b8ce917","type":"file","file":"pythagorean-theorem.md","x":-1135,"y":-741,"width":400,"height":400},
+		{"id":"8ae9ca6ea379a6ae","type":"file","file":"Untitled/distance-formula.md","x":-1135,"y":-200,"width":400,"height":400}
 	],
 	"edges":[
 		{"id":"8ab217c7d5afe620","fromNode":"830c4649360d4ec4","fromSide":"bottom","toNode":"e41f63b359c9d475","toSide":"top"},

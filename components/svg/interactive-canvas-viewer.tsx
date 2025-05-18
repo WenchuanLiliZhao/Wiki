@@ -4,6 +4,16 @@ import { useEffect, useRef, useState } from "react";
 import katex from "katex";
 import "katex/dist/katex.min.css";
 import { ZoomSlider } from "./ZoomSlider";
+import { unified } from "unified";
+import remarkParse from "remark-parse";
+import remarkMath from "remark-math";
+import remarkRehype from "remark-rehype";
+import rehypeKatex from "rehype-katex";
+import rehypeStringify from "rehype-stringify";
+import rehypeSanitize from "rehype-sanitize";
+import rehypeHighlight from "rehype-highlight";
+import remarkGfm from "remark-gfm";
+import "highlight.js/styles/github.css";
 
 interface CanvasNode {
   id: string;
@@ -60,48 +70,200 @@ function mapColor(color: string | undefined) {
   return appliedColor;
 }
 
-// Parse and render KaTeX formulas
-function renderMathInText(text: string) {
-  if (!text.includes("$")) return text;
+// Custom plugin to handle wiki links [[Page Name]], [[Folder/Page Name]], or [[path|display-text]]
+function remarkWikiLinks() {
+  return (tree: any) => {
+    const visit = (node: any) => {
+      if (node.type === "text" && node.value.includes("[[")) {
+        const segments = []
+        let lastIndex = 0
+        const regex = /\[\[(.*?)\]\]/g
+        let match
 
-  const parts = text.split(/(\$+)/).filter(Boolean);
-  const result: React.ReactNode[] = [];
-  let inMath = false;
+        while ((match = regex.exec(node.value)) !== null) {
+          // Text before the wiki link
+          if (match.index > lastIndex) {
+            segments.push({
+              type: "text",
+              value: node.value.slice(lastIndex, match.index),
+            })
+          }
 
-  parts.forEach((part, index) => {
-    if (part.startsWith("$")) {
-      inMath = !inMath;
-      // Skip the dollar sign markers
-      return;
+          // The wiki link content
+          const linkContent = match[1]
+          
+          // Check if the link contains a pipe for custom display text
+          const pipeIndex = linkContent.indexOf('|')
+          
+          let linkPath, displayText
+          if (pipeIndex !== -1) {
+            // Format: [[path|display-text]]
+            linkPath = linkContent.substring(0, pipeIndex).trim()
+            displayText = linkContent.substring(pipeIndex + 1).trim()
+          } else {
+            // Format: [[path]] - use the same value for both
+            linkPath = linkContent
+            displayText = linkContent
+          }
+          
+          // Handle paths in wiki links
+          // If it's a nested path like "Folder/Page", preserve the structure
+          // Otherwise, convert spaces to dashes for legacy formatting
+          const slug = linkPath.includes("/") 
+            ? linkPath.split("/").map(part => part.toLowerCase().replace(/\s+/g, "-")).join("/")
+            : linkPath.toLowerCase().replace(/\s+/g, "-")
+            
+          segments.push({
+            type: "wikiLink",
+            data: {
+              hName: "a",
+              hProperties: {
+                href: `/wiki/${slug}`,
+                className: "wiki-link",
+              },
+            },
+            children: [{ type: "text", value: displayText }],
+          })
+
+          lastIndex = match.index + match[0].length
+        }
+
+        // Text after the last wiki link
+        if (lastIndex < node.value.length) {
+          segments.push({
+            type: "text",
+            value: node.value.slice(lastIndex),
+          })
+        }
+
+        return segments
+      }
+
+      if (node.children) {
+        const newChildren = []
+        for (const child of node.children) {
+          const result = visit(child)
+          if (Array.isArray(result)) {
+            newChildren.push(...result)
+          } else {
+            newChildren.push(child)
+          }
+        }
+        node.children = newChildren
+      }
+
+      return node
     }
 
-    if (inMath) {
-      // This is a math part, render with KaTeX
-      const html = katex.renderToString(part, {
-        throwOnError: false,
-        displayMode: false,
-        macros: {
-          "\\Tuple": "{\\left\\langle #1 \\right\\rangle}",
-          "\\String": "{\\text{`} #1 \\text{'}}",
-          "\\Numeral": "{\\tilde{#1}}",
-          "\\StringAdd": "{^{\\frown}}",
-        },
+    visit(tree)
+  }
+}
+
+// Render node text with markdown and wikilinks
+function NodeContent({ text, nodeId }: { text: string, nodeId: string }) {
+  const [contentHtml, setContentHtml] = useState<string>('');
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    async function renderContent() {
+      const processor = unified()
+        .use(remarkParse)
+        .use(remarkWikiLinks)
+        .use(remarkGfm)
+        .use(remarkMath)
+        .use(remarkRehype)
+        .use(rehypeSanitize)
+        .use(rehypeKatex, {
+          macros: {
+            "\\Tuple": "{\\left\\langle #1 \\right\\rangle}",
+            "\\String": "{\\text{`} #1 \\text{'}}",
+            "\\Numeral": "{\\tilde{#1}}",
+            "\\StringAdd": "{^{\\frown}}",
+          },
+          trust: true,
+        })
+        .use(rehypeHighlight)
+        .use(rehypeStringify);
+
+      const result = await processor.process(text);
+      setContentHtml(String(result));
+    }
+
+    renderContent();
+  }, [text]);
+
+  useEffect(() => {
+    // 添加链接点击处理
+    if (!containerRef.current || !contentHtml) return;
+
+    const processLinks = () => {
+      // 处理所有链接
+      containerRef.current?.querySelectorAll("a").forEach((link) => {
+        // 设置指针样式
+        link.style.cursor = "pointer";
+        link.style.pointerEvents = "auto";
+        
+        // 移除旧的事件监听器
+        const newLink = link.cloneNode(true) as HTMLAnchorElement;
+        link.parentNode?.replaceChild(newLink, link);
+        
+        // 为wiki链接添加特殊样式
+        if (newLink.classList.contains('wiki-link')) {
+          newLink.setAttribute('title', '点击打开WikiLink');
+        }
+        
+        // 添加新的点击事件监听器
+        newLink.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const href = newLink.getAttribute("href");
+          if (href) {
+            // 使用window.open防止被SVG事件处理捕获
+            window.open(href, '_self');
+          }
+        });
       });
+    };
+    
+    // 执行链接处理
+    processLinks();
+    
+    // 添加一个微小延迟以确保DOM完全渲染
+    const timer = setTimeout(() => {
+      processLinks();
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [contentHtml]);
 
-      result.push(
-        <span
-          key={index}
-          dangerouslySetInnerHTML={{ __html: html }}
-          className="math"
-        />
-      );
-    } else {
-      // This is a text part
-      result.push(<span key={index}>{part}</span>);
+  // 处理整个内容区域的点击事件
+  const handleContentClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    
+    // 如果点击的是链接或其子元素，阻止事件冒泡
+    if (target.tagName === 'A' || target.closest('a')) {
+      e.stopPropagation();
     }
-  });
+  };
 
-  return result;
+  return (
+    <div 
+      ref={containerRef}
+      id={`node-content-${nodeId}`}
+      className="node-content wiki-content"
+      onClick={handleContentClick}
+      style={{
+        overflow: "auto",
+        wordWrap: "break-word",
+        height: "100%",
+        maxHeight: "100%",
+        padding: "2px",
+        fontSize: "14px"
+      }}
+      dangerouslySetInnerHTML={{ __html: contentHtml }}
+    />
+  );
 }
 
 export function InteractiveCanvasViewer({ content }: { content: string }) {
@@ -183,6 +345,22 @@ export function InteractiveCanvasViewer({ content }: { content: string }) {
 
   // Handle drag
   const handleMouseDown = (e: React.MouseEvent) => {
+    // 检查点击的元素是否是链接或链接的子元素
+    const target = e.target as HTMLElement | SVGElement;
+    
+    // 检查是否是链接元素
+    const isLink = 
+      target.tagName === 'A' || 
+      target.closest('a') || 
+      (target as HTMLElement).className?.toString().includes('wiki-link') ||
+      (target.parentElement && 
+       (target.parentElement as HTMLElement).className?.toString().includes('wiki-link'));
+    
+    if (isLink) {
+      // 如果是链接，不启动拖动
+      return;
+    }
+
     if (e.button === 0) {
       // Left mouse button
       setIsDragging(true);
@@ -374,6 +552,7 @@ export function InteractiveCanvasViewer({ content }: { content: string }) {
             transform: `scale(${transform.scale}) translate(${transform.translateX}px, ${transform.translateY}px)`,
             transformOrigin: "center",
           }}
+          pointerEvents="painted"
         >
           {/* Render groups first */}
           {canvasData.nodes
@@ -485,16 +664,9 @@ export function InteractiveCanvasViewer({ content }: { content: string }) {
                     y={node.y + 5}
                     width={node.width - 20}
                     height={node.height - 10}
+                    style={{ pointerEvents: "auto" }}
                   >
-                    <div
-                      className="node-content"
-                      style={{
-                        overflow: "hidden",
-                        wordWrap: "break-word",
-                      }}
-                    >
-                      {renderMathInText(node.text)}
-                    </div>
+                    <NodeContent text={node.text} nodeId={node.id} />
                   </foreignObject>
                 )}
               </g>

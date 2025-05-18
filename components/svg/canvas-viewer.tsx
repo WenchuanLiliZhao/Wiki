@@ -1,6 +1,8 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { getPageBySlug } from "@/lib/wiki-utils"
+import path from "path"
 
 interface CanvasNode {
   id: string
@@ -23,8 +25,17 @@ interface CanvasEdge {
   toSide: string
 }
 
+interface CanvasNodeWithTitle extends CanvasNode {
+  pageTitle?: string
+}
+
 interface CanvasData {
   nodes: CanvasNode[]
+  edges: CanvasEdge[]
+}
+
+interface CanvasDataWithTitles {
+  nodes: CanvasNodeWithTitle[]
   edges: CanvasEdge[]
 }
 
@@ -52,7 +63,7 @@ function mapColor(color: string | undefined) {
 
 export function CanvasViewer({ content }: { content: string }) {
   const svgRef = useRef<SVGSVGElement>(null)
-  const [canvasData, setCanvasData] = useState<CanvasData | null>(null)
+  const [canvasData, setCanvasData] = useState<CanvasDataWithTitles | null>(null)
   const [viewBox, setViewBox] = useState("0 0 1000 1000")
   
   useEffect(() => {
@@ -202,39 +213,86 @@ export function CanvasViewer({ content }: { content: string }) {
           .filter(node => node.type !== "group")
           .map(node => (
             <g key={node.id}>
-              <rect
-                x={node.x}
-                y={node.y}
-                width={node.width}
-                height={node.height}
-                rx="5"
-                stroke={mapColor(node.color)}
-                strokeWidth="2"
-                fill="white"
-                fillOpacity="0.9"
-              />
-              
-              {node.text && (
-                <foreignObject
-                  x={node.x + 10}
-                  y={node.y + 5}
-                  width={node.width - 20}
-                  height={node.height - 10}
+              {node.type === "file" && node.file ? (
+                <a 
+                  href={`/wiki/${node.file.replace(/\.md$/, "")}`}
+                  target="_self"
                 >
-                  <div 
-                    style={{
-                      fontFamily: "system-ui, sans-serif",
-                      fontSize: "14px",
-                      overflow: "hidden",
-                      wordWrap: "break-word"
-                    }}
+                  <rect
+                    x={node.x}
+                    y={node.y}
+                    width={node.width}
+                    height={node.height}
+                    rx="5"
+                    stroke={mapColor(node.color)}
+                    strokeWidth="2"
+                    fill="white"
+                    fillOpacity="0.9"
+                  />
+                  <foreignObject
+                    x={node.x + 10}
+                    y={node.y + 10}
+                    width={node.width - 20}
+                    height={node.height - 20}
                   >
-                    {node.text.split("$").map((part, i) => 
-                      i % 2 === 0 ? 
-                        part : <em key={i} style={{fontStyle: "italic"}}>{part}</em>
-                    )}
-                  </div>
-                </foreignObject>
+                    <div 
+                      style={{
+                        fontFamily: "system-ui, sans-serif",
+                        fontSize: "16px",
+                        overflow: "hidden",
+                        wordWrap: "break-word",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        height: "100%"
+                      }}
+                    >
+                      <div style={{ fontWeight: "bold", marginBottom: "8px" }}>
+                        {node.pageTitle || path.basename(node.file.replace(/\.md$/, ""))}
+                      </div>
+                      <div style={{ fontSize: "14px", opacity: 0.8 }}>
+                        {node.file}
+                      </div>
+                    </div>
+                  </foreignObject>
+                </a>
+              ) : (
+                <>
+                  <rect
+                    x={node.x}
+                    y={node.y}
+                    width={node.width}
+                    height={node.height}
+                    rx="5"
+                    stroke={mapColor(node.color)}
+                    strokeWidth="2"
+                    fill="white"
+                    fillOpacity="0.9"
+                  />
+                  
+                  {node.text && (
+                    <foreignObject
+                      x={node.x + 10}
+                      y={node.y + 5}
+                      width={node.width - 20}
+                      height={node.height - 10}
+                    >
+                      <div 
+                        style={{
+                          fontFamily: "system-ui, sans-serif",
+                          fontSize: "14px",
+                          overflow: "hidden",
+                          wordWrap: "break-word"
+                        }}
+                      >
+                        {node.text.split("$").map((part, i) => 
+                          i % 2 === 0 ? 
+                            part : <em key={i} style={{fontStyle: "italic"}}>{part}</em>
+                        )}
+                      </div>
+                    </foreignObject>
+                  )}
+                </>
               )}
             </g>
           ))}
