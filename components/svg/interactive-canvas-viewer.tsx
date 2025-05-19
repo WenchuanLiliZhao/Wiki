@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import katex from "katex";
 import "katex/dist/katex.min.css";
-import { ZoomSlider } from "./ZoomSlider";
 import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkMath from "remark-math";
@@ -280,14 +279,6 @@ export function InteractiveCanvasViewer({ content }: { content: string }) {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [curviness, setCurviness] = useState(1); // Control the curve intensity (0.1 to 1.0)
 
-  // Handle zoom change from slider
-  const handleZoomChange = (newScale: number) => {
-    setTransform(prev => ({
-      ...prev,
-      scale: newScale
-    }));
-  };
-
   // Parse canvas data
   useEffect(() => {
     try {
@@ -314,19 +305,25 @@ export function InteractiveCanvasViewer({ content }: { content: string }) {
         const viewBoxHeight = maxY - minY + padding * 2;
         setViewBox(`${minX - padding} ${minY - padding} ${viewBoxWidth} ${viewBoxHeight}`);
         
-        // Center the content initially
+        // Center the SVG initially while maintaining 1:1 pixel ratio
         if (containerRef.current) {
           const containerWidth = containerRef.current.clientWidth;
           const containerHeight = 600; // Fixed height from style
           
-          // Calculate initial translation to center the content
-          const initialTranslateX = (containerWidth/2 - viewBoxWidth/2);
-          const initialTranslateY = (containerHeight/2 - viewBoxHeight/2);
+          // Calculate translation to center content
+          const initialTranslateX = (containerWidth - viewBoxWidth) / 2;
+          const initialTranslateY = (containerHeight - viewBoxHeight) / 2;
           
           setTransform({
-            scale: 1,
-            translateX: initialTranslateX,
-            translateY: initialTranslateY
+            scale: 1.0, // True 1:1 pixel mapping
+            translateX: Math.max(0, initialTranslateX),
+            translateY: Math.max(0, initialTranslateY)
+          });
+        } else {
+          setTransform({
+            scale: 1.0,
+            translateX: 0,
+            translateY: 0
           });
         }
       }
@@ -554,8 +551,10 @@ export function InteractiveCanvasViewer({ content }: { content: string }) {
             onChange={(e) => setCurviness(parseFloat(e.target.value))}
             style={{ width: "100px" }}
           />
-
-          <ZoomSlider scale={transform.scale} onZoomChange={handleZoomChange} />
+          
+          <div style={{ marginTop: "5px" }}>
+            <span>缩放比例: {transform.scale.toFixed(2)}x</span>
+          </div>
         </div>
       </div>
 
@@ -565,142 +564,151 @@ export function InteractiveCanvasViewer({ content }: { content: string }) {
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         style={{
-          overflow: "hidden",
+          overflow: "auto",
           width: "100%",
           height: "600px",
           cursor: isDragging ? "grabbing" : "grab",
+          position: "relative",
         }}
       >
-        <svg
-          ref={svgRef}
-          viewBox={viewBox}
-          xmlns="http://www.w3.org/2000/svg"
+        <div
           style={{
-            width: "100%",
-            height: "100%",
-            transformOrigin: "0 0", // Change from center to top-left
-            transform: `scale(${transform.scale}) translate(${transform.translateX / transform.scale}px, ${transform.translateY / transform.scale}px)`,
+            position: "absolute",
+            transformOrigin: "0 0",
+            transform: `scale(${transform.scale})`,
           }}
-          pointerEvents="painted"
         >
-          {/* Render groups first */}
-          {canvasData.nodes
-            .filter((node) => node.type === "group")
-            .map((node) => (
-              <g key={node.id}>
-                <rect
-                  x={node.x}
-                  y={node.y}
-                  width={node.width}
-                  height={node.height}
-                  rx="8"
-                  stroke={mapColor(node.color)}
-                  strokeWidth="1"
-                  fill="#fbfbfb20"
-                />
-                {node.label && (
-                  <text
-                    x={node.x + 0}
-                    y={node.y - 10}
-                    className="group-label"
-                    fill="#2c2d2c"
-                  >
-                    {node.label}
-                  </text>
-                )}
-              </g>
-            ))}
+          <svg
+            ref={svgRef}
+            viewBox={viewBox}
+            xmlns="http://www.w3.org/2000/svg"
+            style={{
+              width: viewBox.split(" ")[2] + "px",
+              height: viewBox.split(" ")[3] + "px",
+              transform: `translate(${transform.translateX / transform.scale}px, ${transform.translateY / transform.scale}px)`,
+            }}
+            preserveAspectRatio="none"
+            pointerEvents="painted"
+          >
+            {/* Render groups first */}
+            {canvasData.nodes
+              .filter((node) => node.type === "group")
+              .map((node) => (
+                <g key={node.id}>
+                  <rect
+                    x={node.x}
+                    y={node.y}
+                    width={node.width}
+                    height={node.height}
+                    rx="8"
+                    stroke={mapColor(node.color)}
+                    strokeWidth="1"
+                    fill="#fbfbfb20"
+                  />
+                  {node.label && (
+                    <text
+                      x={node.x + 0}
+                      y={node.y - 10}
+                      className="group-label"
+                      fill="#2c2d2c"
+                    >
+                      {node.label}
+                    </text>
+                  )}
+                </g>
+              ))}
 
-          {/* Render edges with arrow markers */}
-          <defs>
-            {edgesWithPosition.map((edge) => (
-              <marker
-                key={`marker-${edge.id}`}
-                id={`arrow-${edge.id}`}
-                viewBox="0 0 10 10"
-                refX="10" // Position the arrow tip exactly at the end of the path
-                refY="5"
-                markerWidth="6"
-                markerHeight="6"
-                orient="auto-start-reverse"
-              >
-                <path d="M 0 0 L 10 5 L 0 10 z" fill="#7e7e7e" />
-              </marker>
-            ))}
-          </defs>
+            {/* Render edges with arrow markers */}
+            <defs>
+              {edgesWithPosition.map((edge) => (
+                <marker
+                  key={`marker-${edge.id}`}
+                  id={`arrow-${edge.id}`}
+                  viewBox="0 0 10 10"
+                  refX="10" // Position the arrow tip exactly at the end of the path
+                  refY="5"
+                  markerWidth="6"
+                  markerHeight="6"
+                  orient="auto-start-reverse"
+                >
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#7e7e7e" />
+                </marker>
+              ))}
+            </defs>
 
-          {edgesWithPosition.map((edge) => {
-            // Adjust endpoint coordinates to ensure arrows connect precisely at card edges
-            // This compensates for the marker dimensions and creates a seamless visual connection
-            const endX = edge.toSide === "left" ? edge.toX + 1 : 
-                         edge.toSide === "right" ? edge.toX - 1 : edge.toX;
-            const endY = edge.toSide === "top" ? edge.toY + 1 : 
-                         edge.toSide === "bottom" ? edge.toY - 1 : edge.toY;
-                         
-            // Calculate the exact midpoint on the cubic Bezier curve (at t=0.5)
-            // Using the formula: P(0.5) = 0.125*P0 + 0.375*P1 + 0.375*P2 + 0.125*P3
-            const midX = 0.125 * edge.fromX + 0.375 * edge.cx1 + 0.375 * edge.cx2 + 0.125 * endX;
-            const midY = 0.125 * edge.fromY + 0.375 * edge.cy1 + 0.375 * edge.cy2 + 0.125 * endY;
-            
-            return (
-              <g key={edge.id} >
-                <path
-                  d={`M ${edge.fromX} ${edge.fromY} C ${edge.cx1} ${edge.cy1}, ${edge.cx2} ${edge.cy2}, ${endX} ${endY}`}
-                  fill="none"
-                  stroke="#7e7e7e"
-                  strokeWidth="1"
-                  markerEnd={`url(#arrow-${edge.id})`} // Attach arrow marker to the path end
-                />
-                {edge.label && (
-                  <text
-                    x={midX}
-                    y={midY}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    fill="#555"
-                    fontSize="14"
-                    paintOrder="stroke"
-                    strokeWidth="4"
-                    stroke="#ffffff"
-                  >
-                    {edge.label}
-                  </text>
-                )}
-              </g>
-            );
-          })}
+            {edgesWithPosition.map((edge) => {
+              // Adjust endpoint coordinates to ensure arrows connect precisely at card edges
+              // This compensates for the marker dimensions and creates a seamless visual connection
+              const endX = edge.toSide === "left" ? edge.toX + 1 : 
+                           edge.toSide === "right" ? edge.toX - 1 : edge.toX;
+              const endY = edge.toSide === "top" ? edge.toY + 1 : 
+                           edge.toSide === "bottom" ? edge.toY - 1 : edge.toY;
+                           
+              // Calculate the exact midpoint on the cubic Bezier curve (at t=0.5)
+              // Using the formula: P(0.5) = 0.125*P0 + 0.375*P1 + 0.375*P2 + 0.125*P3
+              const midX = 0.125 * edge.fromX + 0.375 * edge.cx1 + 0.375 * edge.cx2 + 0.125 * endX;
+              const midY = 0.125 * edge.fromY + 0.375 * edge.cy1 + 0.375 * edge.cy2 + 0.125 * endY;
+              
+              return (
+                <g key={edge.id} >
+                  <path
+                    d={`M ${edge.fromX} ${edge.fromY} C ${edge.cx1} ${edge.cy1}, ${edge.cx2} ${edge.cy2}, ${endX} ${endY}`}
+                    fill="none"
+                    stroke="#7e7e7e"
+                    strokeWidth="1"
+                    markerEnd={`url(#arrow-${edge.id})`} // Attach arrow marker to the path end
+                  />
+                  {edge.label && (
+                    <text
+                      x={midX}
+                      y={midY}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      fill="#555"
+                      fontSize="14"
+                      paintOrder="stroke"
+                      strokeWidth="4"
+                      stroke="#ffffff"
+                    >
+                      {edge.label}
+                    </text>
+                  )}
+                </g>
+              );
+            })}
 
-          {/* Render nodes */}
-          {canvasData.nodes
-            .filter((node) => node.type !== "group")
-            .map((node) => (
-              <g key={node.id}>
-                <rect
-                  x={node.x}
-                  y={node.y}
-                  width={node.width}
-                  height={node.height}
-                  rx="4"
-                  stroke={mapColor(node.color)}
-                  strokeWidth="1"
-                  fill="white"
-                  fillOpacity="0.9"
-                />
+            {/* Render nodes */}
+            {canvasData.nodes
+              .filter((node) => node.type !== "group")
+              .map((node) => (
+                <g key={node.id}>
+                  <rect
+                    x={node.x}
+                    y={node.y}
+                    width={node.width}
+                    height={node.height}
+                    rx="4"
+                    stroke={mapColor(node.color)}
+                    strokeWidth="1"
+                    fill="white"
+                    fillOpacity="0.9"
+                  />
 
-                {node.text && (
-                  <foreignObject
-                    x={node.x + 10}
-                    y={node.y + 5}
-                    width={node.width - 20}
-                    height={node.height - 10}
-                    style={{ pointerEvents: "auto" }}
-                  >
-                    <NodeContent text={node.text} nodeId={node.id} />
-                  </foreignObject>
-                )}
-              </g>
-            ))}
-        </svg>
+                  {node.text && (
+                    <foreignObject
+                      x={node.x + 10}
+                      y={node.y + 5}
+                      width={node.width - 20}
+                      height={node.height - 10}
+                      style={{ pointerEvents: "auto" }}
+                    >
+                      <NodeContent text={node.text} nodeId={node.id} />
+                    </foreignObject>
+                  )}
+                </g>
+              ))}
+          </svg>
+        </div>
       </div>
     </div>
   );
