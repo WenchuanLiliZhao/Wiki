@@ -15,9 +15,9 @@
               "state": {
                 "file": "Untitled.canvas",
                 "viewState": {
-                  "x": -652.2091904643869,
-                  "y": -297.58048970123264,
-                  "zoom": -0.5384280079354838
+                  "x": -530.6442228035386,
+                  "y": -188.17201880646945,
+                  "zoom": -1.686150540138284
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -171,13 +171,13 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "4eee16291a82317f",
+  "active": "29f2af8fabd26049",
   "lastOpenFiles": [
+    "Untitled/distance-formula.md",
     "Untitled.canvas",
     "pythagorean-theorem.md",
     "Untitled",
     "vector-calculations.md",
-    "Untitled/distance-formula.md",
     "2025-05-16.md",
     "_new-commands.md"
   ]

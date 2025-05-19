@@ -278,6 +278,9 @@ export function InteractiveCanvasViewer({ content }: { content: string }) {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [curviness, setCurviness] = useState(1); // Control the curve intensity (0.1 to 1.0)
+  
+  // 滚轮缩放速率系数 - 值越小，缩放越慢
+  const [zoomSpeed, setZoomSpeed] = useState(0.025);
 
   // Parse canvas data
   useEffect(() => {
@@ -340,7 +343,13 @@ export function InteractiveCanvasViewer({ content }: { content: string }) {
     const wheelHandler = (e: WheelEvent) => {
       e.preventDefault();
       const delta = e.deltaY;
-      const scaleFactor = delta > 0 ? 0.9 : 1.1;
+      
+      // 使用缩放速率系数来控制缩放速度
+      // 原来的缩放因子是 0.9 或 1.1 (变化率为 10%)
+      // 现在使用 1 +/- (zoomSpeed * 0.25) 来控制
+      const scaleFactor = delta > 0 
+        ? 1 - (zoomSpeed)
+        : 1 + (zoomSpeed);
       
       // Get mouse position relative to container
       const rect = container.getBoundingClientRect();
@@ -367,7 +376,7 @@ export function InteractiveCanvasViewer({ content }: { content: string }) {
     return () => {
       container.removeEventListener("wheel", wheelHandler);
     };
-  }, [transform]);
+  }, [transform, zoomSpeed]);
 
   // Handle drag
   const handleMouseDown = (e: React.MouseEvent) => {
