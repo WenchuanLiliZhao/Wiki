@@ -13,6 +13,7 @@ import rehypeSanitize from "rehype-sanitize";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
 import "highlight.js/styles/github.css";
+import path from "path";
 
 interface CanvasNode {
   id: string;
@@ -691,28 +692,75 @@ export function InteractiveCanvasViewer({ content }: { content: string }) {
               .filter((node) => node.type !== "group")
               .map((node) => (
                 <g key={node.id}>
-                  <rect
-                    x={node.x}
-                    y={node.y}
-                    width={node.width}
-                    height={node.height}
-                    rx="4"
-                    stroke={mapColor(node.color)}
-                    strokeWidth="1"
-                    fill="white"
-                    fillOpacity="0.9"
-                  />
-
-                  {node.text && (
-                    <foreignObject
-                      x={node.x + 10}
-                      y={node.y + 5}
-                      width={node.width - 20}
-                      height={node.height - 10}
-                      style={{ pointerEvents: "auto" }}
+                  {node.type === "file" && node.file ? (
+                    <a 
+                      href={`/wiki/${node.file.replace(/\.md$/, "")}`}
+                      target="_self"
                     >
-                      <NodeContent text={node.text} nodeId={node.id} />
-                    </foreignObject>
+                      <rect
+                        x={node.x}
+                        y={node.y}
+                        width={node.width}
+                        height={node.height}
+                        rx="4"
+                        stroke={mapColor(node.color)}
+                        strokeWidth="1"
+                        fill="white"
+                        fillOpacity="0.9"
+                      />
+                      <foreignObject
+                        x={node.x + 10}
+                        y={node.y + 10}
+                        width={node.width - 20}
+                        height={node.height - 20}
+                      >
+                        <div 
+                          style={{
+                            fontFamily: "system-ui, sans-serif",
+                            fontSize: "16px",
+                            overflow: "hidden",
+                            wordWrap: "break-word",
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            height: "100%"
+                          }}
+                        >
+                          <div style={{ fontWeight: "bold", marginBottom: "8px" }}>
+                            {path.basename(node.file.replace(/\.md$/, ""))}
+                          </div>
+                          <div style={{ fontSize: "14px", opacity: 0.8 }}>
+                            {node.file}
+                          </div>
+                        </div>
+                      </foreignObject>
+                    </a>
+                  ) : (
+                    <>
+                      <rect
+                        x={node.x}
+                        y={node.y}
+                        width={node.width}
+                        height={node.height}
+                        rx="4"
+                        stroke={mapColor(node.color)}
+                        strokeWidth="1"
+                        fill="white"
+                        fillOpacity="0.9"
+                      />
+
+                      {node.text && (
+                        <foreignObject
+                          x={node.x + 10}
+                          y={node.y + 5}
+                          width={node.width - 20}
+                          height={node.height - 10}
+                          style={{ pointerEvents: "auto" }}
+                        >
+                          <NodeContent text={node.text} nodeId={node.id} />
+                        </foreignObject>
+                      )}
+                    </>
                   )}
                 </g>
               ))}

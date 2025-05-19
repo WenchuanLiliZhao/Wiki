@@ -45,21 +45,32 @@ export default async function HomePage() {
         <div>
           <h2 className="text-2xl font-semibold mb-4">Canvas Files</h2>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {canvasFiles.map((canvas) => (
-              <Link
-                key={canvas.slug}
-                href={`/canvas/${canvas.slug}`}
-                className="block p-6 bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
-              >
-                <h2 className="text-xl font-semibold mb-2">{canvas.slug}</h2>
-                <div className="flex items-center text-gray-600">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm2-2h12v10H4V3z" clipRule="evenodd" />
-                  </svg>
-                  Obsidian Canvas
-                </div>
-              </Link>
-            ))}
+            {canvasFiles.map((canvas) => {
+              // Get the basename for display purposes
+              const displayName = canvas.slug.split('/').pop() || canvas.slug;
+              
+              return (
+                <Link
+                  key={canvas.slug}
+                  href={`/canvas/${canvas.slug}`}
+                  className="block p-6 bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <h2 className="text-xl font-semibold mb-2">{displayName}</h2>
+                  <div className="flex items-center text-gray-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm2-2h12v10H4V3z" clipRule="evenodd" />
+                    </svg>
+                    Obsidian Canvas
+                  </div>
+                  {/* Display the path if it's in a subdirectory */}
+                  {canvas.slug.includes('/') && (
+                    <div className="text-sm text-gray-500 mt-2">
+                      Path: {canvas.slug.substring(0, canvas.slug.lastIndexOf('/'))}
+                    </div>
+                  )}
+                </Link>
+              );
+            })}
           </div>
         </div>
       )}
