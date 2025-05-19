@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { getPageBySlug } from "@/lib/wiki-utils"
 import path from "path"
 
 interface CanvasNode {

@@ -308,12 +308,27 @@ export function InteractiveCanvasViewer({ content }: { content: string }) {
           maxY = Math.max(maxY, node.y + node.height);
         });
 
+        // Set viewBox to the actual dimensions without automatic scaling
         const padding = 50;
-        setViewBox(
-          `${minX - padding} ${minY - padding} ${maxX - minX + padding * 2} ${
-            maxY - minY + padding * 2
-          }`
-        );
+        const viewBoxWidth = maxX - minX + padding * 2;
+        const viewBoxHeight = maxY - minY + padding * 2;
+        setViewBox(`${minX - padding} ${minY - padding} ${viewBoxWidth} ${viewBoxHeight}`);
+        
+        // Center the content initially
+        if (containerRef.current) {
+          const containerWidth = containerRef.current.clientWidth;
+          const containerHeight = 600; // Fixed height from style
+          
+          // Calculate initial translation to center the content
+          const initialTranslateX = (containerWidth/2 - viewBoxWidth/2);
+          const initialTranslateY = (containerHeight/2 - viewBoxHeight/2);
+          
+          setTransform({
+            scale: 1,
+            translateX: initialTranslateX,
+            translateY: initialTranslateY
+          });
+        }
       }
     } catch (error) {
       console.error("Failed to parse canvas data:", error);
@@ -329,11 +344,25 @@ export function InteractiveCanvasViewer({ content }: { content: string }) {
       e.preventDefault();
       const delta = e.deltaY;
       const scaleFactor = delta > 0 ? 0.9 : 1.1;
-
-      setTransform((prev) => ({
-        ...prev,
-        scale: Math.max(0.1, Math.min(3, prev.scale * scaleFactor)),
-      }));
+      
+      // Get mouse position relative to container
+      const rect = container.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      
+      // Calculate new scale
+      const newScale = Math.max(0.1, Math.min(3, transform.scale * scaleFactor));
+      
+      // Calculate new translation to zoom centered on mouse position
+      const scaleChange = newScale / transform.scale;
+      const newTranslateX = mouseX - (mouseX - transform.translateX) * scaleChange;
+      const newTranslateY = mouseY - (mouseY - transform.translateY) * scaleChange;
+      
+      setTransform({
+        scale: newScale,
+        translateX: newTranslateX,
+        translateY: newTranslateY
+      });
     };
 
     container.addEventListener("wheel", wheelHandler, { passive: false });
@@ -341,7 +370,7 @@ export function InteractiveCanvasViewer({ content }: { content: string }) {
     return () => {
       container.removeEventListener("wheel", wheelHandler);
     };
-  }, []);
+  }, [transform]);
 
   // Handle drag
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -549,8 +578,8 @@ export function InteractiveCanvasViewer({ content }: { content: string }) {
           style={{
             width: "100%",
             height: "100%",
-            transform: `scale(${transform.scale}) translate(${transform.translateX}px, ${transform.translateY}px)`,
-            transformOrigin: "center",
+            transformOrigin: "0 0", // Change from center to top-left
+            transform: `scale(${transform.scale}) translate(${transform.translateX / transform.scale}px, ${transform.translateY / transform.scale}px)`,
           }}
           pointerEvents="painted"
         >
