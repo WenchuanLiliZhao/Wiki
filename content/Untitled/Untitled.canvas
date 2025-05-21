@@ -7,11 +7,17 @@
 		{"id":"a77b05fa8f90038f","type":"text","text":"$x$ ssss","x":-860,"y":-285,"width":250,"height":69},
 		{"id":"ec4fdda159e87676","type":"text","text":"$x$ ssss [[pythagorean-theorem]] **sss** In a right triangle, the square of the length of the hypotenuse equals the sum of squares of the lengths of the other two sides.","x":-610,"y":-541,"width":250,"height":57},
 		{"id":"8ae9ca6ea379a6ae","type":"file","file":"Untitled/distance-formula.md","x":-1135,"y":-200,"width":400,"height":400},
-		{"id":"4b7871bc1b8ce917","type":"file","file":"pythagorean-theorem.md","x":-1135,"y":-712,"width":400,"height":400}
+		{"id":"4b7871bc1b8ce917","type":"file","file":"pythagorean-theorem.md","x":-1135,"y":-820,"width":400,"height":400},
+		{"id":"b5834af111cb512e","x":-144,"y":-943,"width":364,"height":459,"type":"text","text":""},
+		{"id":"7e977cb6fcd0c88d","type":"text","text":"","x":300,"y":-200,"width":364,"height":459},
+		{"id":"3e15f2268eedef1a","type":"text","text":"","x":664,"y":-943,"width":364,"height":459}
 	],
 	"edges":[
 		{"id":"8ab217c7d5afe620","fromNode":"830c4649360d4ec4","fromSide":"bottom","toNode":"e41f63b359c9d475","toSide":"top"},
 		{"id":"13ef9d9a6012d2e4","fromNode":"830c4649360d4ec4","fromSide":"left","toNode":"a77b05fa8f90038f","toSide":"right"},
-		{"id":"8064b4072849ec0f","fromNode":"830c4649360d4ec4","fromSide":"top","toNode":"ec4fdda159e87676","toSide":"bottom","label":"relates"}
+		{"id":"8064b4072849ec0f","fromNode":"830c4649360d4ec4","fromSide":"top","toNode":"ec4fdda159e87676","toSide":"bottom","label":"relates"},
+		{"id":"64668b94d3da2c67","fromNode":"b5834af111cb512e","fromSide":"right","toNode":"3e15f2268eedef1a","toSide":"left","label":"is the father of"},
+		{"id":"2b1c72d50132828f","fromNode":"b5834af111cb512e","fromSide":"right","toNode":"7e977cb6fcd0c88d","toSide":"top","label":"derives"},
+		{"id":"5f532a62eb41cf97","fromNode":"3e15f2268eedef1a","fromSide":"bottom","toNode":"7e977cb6fcd0c88d","toSide":"right"}
 	]
 }
