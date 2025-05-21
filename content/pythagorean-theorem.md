@@ -7,6 +7,8 @@ update: 2025-05-23
 
 [[Untitled/distance-formula|distance-formula]]
 
+[[Untitled/distance-formula|distance-formula]]
+
 The Pythagorean theorem is a fundamental relation in Euclidean geometry among the three sides of a right triangle.
 
 ## Statement
